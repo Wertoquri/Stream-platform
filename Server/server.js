@@ -3,6 +3,8 @@ import db from './db.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import cors from 'cors';
+
 
 const port = 3000;
 
@@ -11,6 +13,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use(cors({
+    origin: '*',
+    headers: "*",
+    methods: "*"
+}))
 
 app.get('/', (req, res) => {
     res.send('Hello, World!');
@@ -18,22 +25,22 @@ app.get('/', (req, res) => {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function getMovie(req,res){
+function getMovie(req, res) {
     const videoPath = path.resolve(__dirname, 'public', req.filename);
     const stat = fs.statSync(videoPath);
     const fileSize = stat.size;
     const range = req.headers.range;
 
-    if(range){
+    if (range) {
         const parts = range.replace(/bytes=/, "").split("-");
         const start = parseInt(parts[0], 10);
         const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-        if(start >= fileSize){
+        if (start >= fileSize) {
             res.status(416).send('Range Not Satisfiable');
             return;
         }
         const chunkSize = end - start + 1;
-        const file = fs.createReadStream(videoPath, {start, end});
+        const file = fs.createReadStream(videoPath, { start, end });
         const head = {
             'Content-Range': `bytes ${start}-${end}/${fileSize}`,
             'Accept-Ranges': 'bytes',
@@ -73,19 +80,76 @@ app.get('/movies/:id', (req, res, next) => {
 }, getMovie);
 
 
-app.get("/movies", (req,res)=>{
+app.get("/movies", (req, res) => {
     let query = "SELECT * FROM movies";
-    db.query(query, (err, result)=> {
-        if(err){
+
+    if (req.query.sort) {
+        if (["id", "title", "genre"].includes(req.query.sort)) {
+            query += " ORDER BY " + req.query.sort;
+        } else {
+            return res.status(400).send("Invalid sort parameter");
+        }
+    }
+
+    if (req.query.sortType) {
+        const sortType = req.query.sortType.toUpperCase();
+        if (["ASC", "DESC"].includes(sortType)) {
+            query += " " + sortType;
+        } else {
+            return res.status(400).send("Invalid sortType parameter");
+        }
+    }
+    let queryParams = [];
+
+    if (req.query.limit) {
+        const limit = parseInt(req.query.limit, 10);
+        if (!isNaN(limit) && limit > 0) {
+            query += " LIMIT ?";
+            queryParams.push(limit);
+        } else {
+            return res.status(400).send("Invalid limit parameter");
+        }
+    }
+
+    if (req.query.offset) {
+        const offset = parseInt(req.query.offset, 10);
+        if (!isNaN(offset) && offset > 0) {
+            query += " OFFSET ?";
+            queryParams.push(offset);
+        } else {
+            return res.status(400).send("Invalid offset parameter");
+        }
+    }
+
+
+    db.query(query, queryParams, (err, result) => {
+        if (err) {
             console.log("SQL error", err);
             res.status(500);
             res.send("Database error");
         }
-        else{
+        else {
             res.json(result);
         }
     })
 })
+
+app.get("/search", (req, res) => {
+    if (!req.query.title) {
+        return res.status(400).send("Missing title parameter");
+    }
+    const title = `%${req.query.title}%`
+    const query = "SELECT * FROM movies WHERE title LIKE ? LIMIT 10"
+
+    db.query(query, title, (err, result) => {
+        if (err) {
+            console.error("SQL error: ", err);
+            return res.status(500).send("Internal server error")
+        }
+        res.json(result)
+    })
+})
+
 
 
 

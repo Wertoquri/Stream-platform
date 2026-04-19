@@ -13,7 +13,7 @@ export default function Movie() {
                 sources: [
                     {
                         src: `http://localhost:3000/movies/${id}`
-                    }
+                    }   
                 ],
                 poster: `http://localhost:3000/posters/poster.jpg`
             }}
