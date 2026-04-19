@@ -73,6 +73,21 @@ app.get('/movies/:id', (req, res, next) => {
 }, getMovie);
 
 
+app.get("/movies", (req,res)=>{
+    let query = "SELECT * FROM movies";
+    db.query(query, (err, result)=> {
+        if(err){
+            console.log("SQL error", err);
+            res.status(500);
+            res.send("Database error");
+        }
+        else{
+            res.json(result);
+        }
+    })
+})
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
