@@ -5,8 +5,11 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import { useSelector, useDispatch } from 'react-redux';
+import { changeTheme } from '../store/themeReducer';
+import SunnyIcon from '@mui/icons-material/Sunny';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -51,6 +54,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchAppBar() {
+    let t = useSelector(state => state.theme.theme)
+    let dispatch = useDispatch()
     return (
         <Box>
             <AppBar position="static">
@@ -61,14 +66,21 @@ export default function SearchAppBar() {
                         color="inherit"
                         aria-label="open drawer"
                         sx={{ mr: 2 }}
+                        onClick={() => 
+                            dispatch(
+                                changeTheme(t == 'light' ? 'dark' : 'light')
+                            )}
                     >
-                        <MenuIcon />
+
+                        {
+                            t == 'light' ? <DarkModeIcon /> : <SunnyIcon />
+                        }
                     </IconButton>
                     <Typography
                         variant="h6"
                         noWrap
                         component="div"
-                        sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } , color: 'pink' }}
+                        sx={(theme)=>({ flexGrow: 1, display: { xs: 'none', sm: 'block' } , color: 'pink', fontFamily: theme.typography.title})}
                     >
                         Streaming-platform
                     </Typography>
