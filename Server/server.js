@@ -150,8 +150,19 @@ app.get("/search", (req, res) => {
     })
 })
 
-
-
+app.get("/movieInfo/:id", (req, res) => {
+    const id = req.params?.id;
+    if(!id) {
+        return res.status(404).send("Movie not found");
+    
+    }
+    db.query("SELECT * FROM movies WHERE id = ?", [id], (err, result) => {
+        if (err) {
+            return res.status(500).send(err.message);
+        }
+        res.status(200).json(result[0]);
+    })
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
