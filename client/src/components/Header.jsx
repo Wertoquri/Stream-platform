@@ -10,6 +10,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { changeTheme } from '../store/themeReducer';
 import SunnyIcon from '@mui/icons-material/Sunny';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { useTranslation } from 'react-i18next';
+import { FormControl } from '@mui/material';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -54,6 +58,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchAppBar() {
+    let { t: Translation, i18n } = useTranslation();
     let t = useSelector(state => state.theme.theme)
     let dispatch = useDispatch()
     return (
@@ -82,17 +87,24 @@ export default function SearchAppBar() {
                         component="div"
                         sx={(theme)=>({ flexGrow: 1, display: { xs: 'none', sm: 'block' } , color: 'pink', fontFamily: theme.typography.title})}
                     >
-                        Streaming-platform
+                        {Translation('title')}
                     </Typography>
                     <Search>
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
                         <StyledInputBase
-                            placeholder="Search…"
+                            placeholder={Translation('search')}
                             inputProps={{ 'aria-label': 'search' }}
                         />
                     </Search>
+                    <FormControl variant="standard" sx={{mx: 2}}>
+                        <Select value={i18n.language} onChange={(e) => i18n.changeLanguage(e.target.value)}>
+                            <MenuItem value={"en"}>English</MenuItem>
+                            <MenuItem value={"uk"}>Ukrainian</MenuItem>
+                            <MenuItem value={"de"}>Deutsch</MenuItem>
+                        </Select>
+                    </FormControl>
                 </Toolbar>
             </AppBar>
         </Box>

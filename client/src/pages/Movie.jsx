@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { use } from 'react'
 import { Plyr } from 'plyr-react';
 import 'plyr-react/plyr.css';
 import { useParams } from 'react-router';
@@ -7,10 +7,12 @@ import { Paper } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMovieInfo } from '../store/APIReducer';
 import { useEffect } from 'react';
+import { useTranslation, Trans } from "react-i18next";
 
 
 export default function Movie() {
     let { id } = useParams();
+    let { t } = useTranslation();
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getMovieInfo(id))
@@ -24,9 +26,9 @@ export default function Movie() {
 
             <InfoBar>
                 <CardMedia image="http://localhost:3000/poster.png" sx={{ aspectRatio: '16/9' }} />
-                <Typography variant="body1" >Release data: {new Date(movie.release_data).toLocaleDateString()}</Typography>
+                <Typography variant="body1" >{t("Release data")}: {new Date(movie.release_data).toLocaleDateString()}</Typography>
                 <Typography variant="body2" >IMDB: {movie.rating}</Typography>
-                <Typography variant="body2" >Duration: {movie.duration}</Typography>
+                <Typography variant="body2" ><Trans>Duration</Trans>: {movie.duration} <Trans>minutes</Trans></Typography>
             </InfoBar>
             <PlayerWrapper>
                 <Typography variant="h5" >{movie.title}</Typography>
@@ -56,7 +58,7 @@ export default function Movie() {
             <OtherInfo>
                 <Typography variant="h4" >{movie.title}</Typography>
                 <Divider />
-                <Typography variant="h6" > {movie.description}</Typography>
+                <Typography variant="h6" ><Trans>Description</Trans> {movie.description}</Typography>
             </OtherInfo>
         </Wrapper>
     );
