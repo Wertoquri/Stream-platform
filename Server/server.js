@@ -164,6 +164,11 @@ app.get("/movieInfo/:id", (req, res) => {
     })
 });
 
+
+app.get(/^(?!\/(?:movies|search|movieInfo)).*$/, (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

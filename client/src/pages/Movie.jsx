@@ -16,17 +16,21 @@ export default function Movie() {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getMovieInfo(id))
-    }, [id])
+    }, [dispatch, id])
 
     let movie = useSelector(state => state.api.movie)
+
+    const baseURL = import.meta.env.DEV ? "http://localhost:3000" : ""
+    const buildUrl = path => `${baseURL}${path.startsWith('/') ? path : `/${path}`}`
+    const posterUrl = movie?.poster_url ? buildUrl(movie.poster_url) : buildUrl('poster.png')
 
     return (
 
         <Wrapper>
 
             <InfoBar>
-                <CardMedia image="http://localhost:3000/poster.png" sx={{ aspectRatio: '16/9' }} />
-                <Typography variant="body1" >{t("Release data")}: {new Date(movie.release_data).toLocaleDateString()}</Typography>
+                <CardMedia image={posterUrl} sx={{ aspectRatio: '16/9' }} />
+                <Typography variant="body1" >{t("Release data")}: {movie?.release_data ? new Date(movie.release_data).toLocaleDateString() : ''}</Typography>
                 <Typography variant="body2" >IMDB: {movie.rating}</Typography>
                 <Typography variant="body2" ><Trans>Duration</Trans>: {movie.duration} <Trans>minutes</Trans></Typography>
             </InfoBar>
@@ -37,10 +41,10 @@ export default function Movie() {
                     type: 'video',
                     sources: [
                         {
-                            src: `http://localhost:3000/movies/${id}`
+                            src: buildUrl(`movies/${id}`)
                         }
                     ],
-                    poster: `http://localhost:3000/posters/poster.jpg`
+                    poster: buildUrl('posters/poster.jpg')
                 }}
                     options={{
                         controls: [

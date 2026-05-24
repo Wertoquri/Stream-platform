@@ -6,13 +6,26 @@ const initialState = {
     loading: false,
     movies: [],
     error: null,
-    movie: {}
+    movie: {},
+    limit: 6,
+    sort: "title",
+    sortType: "ASC"
 }
 
 const APIReducer = createSlice({
     name: "API",
     initialState,
-    reducers: {},
+    reducers: {
+        changeLimit: (state, action) => {
+            state.limit = action.payload
+        },
+        changeSort: (state, action) => {
+            state.sort = action.payload
+        },
+        changeSortType: (state, action) => {
+            state.sortType = action.payload
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(getMovies.pending, (state) => {
             state.loading = true
@@ -82,6 +95,6 @@ export const getMovieInfo = createAsyncThunk("api/getMovieInfo", async (data) =>
     return response.data
 })
 
-export const { } = APIReducer.actions
+export const { changeLimit, changeSort, changeSortType } = APIReducer.actions
 
 export default APIReducer.reducer
